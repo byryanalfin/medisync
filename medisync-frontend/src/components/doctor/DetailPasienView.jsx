@@ -12,12 +12,12 @@ export default function DetailPasienView({ patient, onStartExam }) {
 
   return (
     <div>
-      <div className="flex justify-between items-start mb-6">
+      <div className="flex flex-wrap justify-between items-start gap-3 mb-6">
         <div>
-          <p className="text-xs font-bold text-blue-600 tracking-wider uppercase mb-1">
+          <p className="text-xs font-bold text-medisync-primary tracking-wider uppercase mb-1">
             PORTAL DOKTER / PASIEN
           </p>
-          <h2 className="text-2xl font-bold text-slate-800">Detail Pasien</h2>
+          <h2 className="text-2xl font-bold text-medisync-dark">Detail Pasien</h2>
           <p className="text-slate-500 text-sm mt-1">
             {patient.name} • {patient.rm_number} • Kunjungan 18 Feb 2025, 09:30
             WIB
@@ -25,7 +25,7 @@ export default function DetailPasienView({ patient, onStartExam }) {
         </div>
         <button
           onClick={onStartExam}
-          className="bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition flex items-center gap-2 shadow-sm"
+          className="bg-medisync-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#0958b5] transition flex items-center gap-2 shadow-sm"
         >
           <svg
             className="w-4 h-4"
@@ -44,47 +44,47 @@ export default function DetailPasienView({ patient, onStartExam }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
         {/* Kolom kiri */}
         <div className="space-y-6">
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-800 mb-4">
+          <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#dce7ef] shadow-sm">
+            <h3 className="text-lg font-bold text-medisync-dark mb-4">
               Identitas Pasien
             </h3>
             <div className="space-y-3 text-sm">
               <div>
                 <p className="text-xs text-slate-500">Nama lengkap</p>
-                <p className="font-semibold text-slate-800">{patient.name}</p>
+                <p className="font-semibold text-medisync-dark">{patient.name}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500">No. Rekam Medis</p>
-                <p className="font-semibold text-slate-800 font-mono">
+                <p className="font-semibold text-medisync-dark font-mono">
                   {patient.rm_number}
                 </p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <p className="text-xs text-slate-500">Usia</p>
-                  <p className="font-semibold text-slate-800">{age} tahun</p>
+                  <p className="font-semibold text-medisync-dark">{age} tahun</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500">Jenis kelamin</p>
-                  <p className="font-semibold text-slate-800">
+                  <p className="font-semibold text-medisync-dark">
                     {patient.gender}
                   </p>
                 </div>
               </div>
               <div>
                 <p className="text-xs text-slate-500">Pelayanan</p>
-                <p className="font-semibold text-slate-800">
+                <p className="font-semibold text-medisync-dark">
                   Poli Umum • Rawat jalan
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-800 mb-4">
+          <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#dce7ef] shadow-sm">
+            <h3 className="text-lg font-bold text-medisync-dark mb-4">
               Riwayat Ringkas
             </h3>
             <p className="text-sm text-slate-600 mb-4">
@@ -93,7 +93,7 @@ export default function DetailPasienView({ patient, onStartExam }) {
             {patient.allergies && (
               <div>
                 <p className="text-xs text-slate-500 mb-1">Alergi tercatat</p>
-                <p className="text-sm font-semibold text-slate-800">
+                <p className="text-sm font-semibold text-medisync-dark">
                   {patient.allergies}
                 </p>
               </div>
@@ -102,9 +102,9 @@ export default function DetailPasienView({ patient, onStartExam }) {
         </div>
 
         {/* Kolom kanan */}
-        <div className="col-span-2 space-y-6">
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-800 mb-1">
+        <div className="min-w-0 lg:col-span-2 space-y-6">
+          <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#dce7ef] shadow-sm">
+            <h3 className="text-lg font-bold text-medisync-dark mb-1">
               Kunjungan Saat Ini
             </h3>
             <p className="text-xs text-slate-500 mb-4">
@@ -135,14 +135,14 @@ export default function DetailPasienView({ patient, onStartExam }) {
 
             <div>
               <p className="text-xs font-medium text-slate-500 mb-1">Keluhan</p>
-              <p className="text-sm text-slate-800 bg-slate-50 p-3 rounded-lg border border-slate-100">
+              <p className="text-sm text-medisync-dark bg-slate-50 p-3 rounded-lg border border-slate-100">
                 Demam, batuk kering, nyeri tenggorokan sejak 3 hari.
               </p>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-800 mb-1">
+          <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#dce7ef] shadow-sm">
+            <h3 className="text-lg font-bold text-medisync-dark mb-1">
               Kunjungan & Resep Sebelumnya
             </h3>
             <p className="text-xs text-slate-500 mb-4">
@@ -171,14 +171,14 @@ export default function DetailPasienView({ patient, onStartExam }) {
                   className="flex justify-between items-center pb-4 border-b border-slate-100 last:border-0 last:pb-0"
                 >
                   <div>
-                    <p className="text-sm font-semibold text-slate-800">
+                    <p className="text-sm font-semibold text-medisync-dark">
                       {v.date} • {v.desc}
                     </p>
                     <p className="text-xs text-slate-500 mt-1 font-mono">
                       {v.code}
                     </p>
                   </div>
-                  <button className="text-blue-600 text-sm font-medium hover:underline">
+                  <button className="text-medisync-primary text-sm font-medium hover:underline">
                     Lihat Detail ›
                   </button>
                 </div>
@@ -190,7 +190,7 @@ export default function DetailPasienView({ patient, onStartExam }) {
 
       <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
         <svg
-          className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+          className="w-5 h-5 text-medisync-primary flex-shrink-0 mt-0.5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

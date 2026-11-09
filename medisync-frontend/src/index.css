@@ -1,14 +1,14 @@
-/* Import Font Manrope dari Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap');
+/* Import Font DM Sans dari Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@200;300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Set Manrope sebagai font default untuk seluruh aplikasi */
+/* Set DM Sans sebagai font default untuk seluruh aplikasi */
 body {
-  font-family: 'Manrope', sans-serif;
-  background-color: #f8fafc;
+  font-family: 'DM Sans', sans-serif;
+  background-color: #f4f8fb;
   -webkit-font-smoothing: antialiased; /* Biar font lebih tajam di Mac/Windows */
 }
 

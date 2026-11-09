@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
 
-export default function DashboardView({ onNavigate }) {
+export default function DashboardView({ onNavigate, userName }) {
   const [stats, setStats] = useState({
     total: 5,
     waiting: 3,
@@ -22,7 +22,7 @@ export default function DashboardView({ onNavigate }) {
           total: data.length,
           waiting: data.length,
         }));
-      } catch (error) {
+      } catch {
         setPatients([
           {
             id: 1,
@@ -66,13 +66,13 @@ export default function DashboardView({ onNavigate }) {
   return (
     <div>
       {/* Header */}
-      <div className="flex justify-between items-start mb-8">
+      <div className="flex flex-wrap justify-between items-start gap-3 mb-8">
         <div>
-          <p className="text-xs font-bold text-blue-600 tracking-wider uppercase mb-1">
-            SELASA, 18 FEBRUARI 2025
+          <p className="text-xs font-bold text-medisync-primary tracking-wider uppercase mb-1">
+            {new Intl.DateTimeFormat("id-ID", { dateStyle: "full", timeZone: "Asia/Jakarta" }).format(new Date())}
           </p>
-          <h2 className="text-2xl font-bold text-slate-800">
-            Selamat datang, dr. Andi Saputra
+          <h2 className="text-2xl font-bold text-medisync-dark">
+            Selamat datang, {userName || "Dokter"}
           </h2>
           <p className="text-slate-500 text-sm mt-1">
             Berikut ringkasan pelayanan pasien Anda hari ini.
@@ -83,7 +83,7 @@ export default function DashboardView({ onNavigate }) {
             console.log("Mulai Pemeriksaan clicked");
             onNavigate && onNavigate("pasien");
           }}
-          className="px-5 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition flex items-center gap-2 shadow-sm cursor-pointer"
+          className="px-5 py-2.5 bg-medisync-primary text-white rounded-lg text-sm font-semibold hover:bg-[#0958b5] transition flex items-center gap-2 shadow-sm cursor-pointer"
           style={{ cursor: "pointer" }}
         >
           <svg
@@ -104,14 +104,14 @@ export default function DashboardView({ onNavigate }) {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      <div className="grid grid-cols-2 gap-3 mb-6 xl:grid-cols-4">
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#dce7ef] shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-medium text-slate-500">
               Pasien Hari Ini
             </p>
             <svg
-              className="w-5 h-5 text-blue-600"
+              className="w-5 h-5 text-medisync-primary"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -124,10 +124,10 @@ export default function DashboardView({ onNavigate }) {
               />
             </svg>
           </div>
-          <p className="text-3xl font-bold text-slate-800">{stats.total}</p>
+          <p className="text-3xl font-bold text-medisync-dark">{stats.total}</p>
           <p className="text-xs text-teal-600 mt-1">+3 dari kemarin</p>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#dce7ef] shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-medium text-slate-500">
               Menunggu Pemeriksaan
@@ -146,14 +146,14 @@ export default function DashboardView({ onNavigate }) {
               />
             </svg>
           </div>
-          <p className="text-3xl font-bold text-slate-800">{stats.waiting}</p>
+          <p className="text-3xl font-bold text-medisync-dark">{stats.waiting}</p>
           <p className="text-xs text-amber-600 mt-1">Perlu ditangani</p>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#dce7ef] shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-medium text-slate-500">Resep Hari Ini</p>
             <svg
-              className="w-5 h-5 text-blue-600"
+              className="w-5 h-5 text-medisync-primary"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -166,10 +166,10 @@ export default function DashboardView({ onNavigate }) {
               />
             </svg>
           </div>
-          <p className="text-3xl font-bold text-slate-800">{stats.resep}</p>
+          <p className="text-3xl font-bold text-medisync-dark">{stats.resep}</p>
           <p className="text-xs text-slate-500 mt-1">Hari ini</p>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#dce7ef] shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-medium text-slate-500">
               Resep Terkirim ke Farmasi
@@ -188,16 +188,16 @@ export default function DashboardView({ onNavigate }) {
               />
             </svg>
           </div>
-          <p className="text-3xl font-bold text-slate-800">{stats.sent}</p>
+          <p className="text-3xl font-bold text-medisync-dark">{stats.sent}</p>
           <p className="text-xs text-teal-600 mt-1">83% dari resep</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
         {/* Antrean Pemeriksaan */}
-        <div className="col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div className="min-w-0 lg:col-span-2 bg-white p-4 sm:p-6 rounded-xl border border-[#dce7ef] shadow-sm">
           <div className="mb-4">
-            <h3 className="text-lg font-bold text-slate-800">
+            <h3 className="text-lg font-bold text-medisync-dark">
               Antrean Pemeriksaan
             </h3>
             <p className="text-xs text-slate-500 mt-1">
@@ -212,7 +212,7 @@ export default function DashboardView({ onNavigate }) {
                 className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100"
               >
                 <div>
-                  <p className="text-sm font-semibold text-slate-800">
+                  <p className="text-sm font-semibold text-medisync-dark">
                     {p.name}
                   </p>
                   <p className="text-xs text-slate-500 mt-1">
@@ -226,8 +226,8 @@ export default function DashboardView({ onNavigate }) {
                   }}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold transition cursor-pointer ${
                     idx === 0
-                      ? "bg-blue-600 text-white hover:bg-blue-700"
-                      : "text-blue-600 hover:bg-blue-50 bg-white border border-blue-200"
+                      ? "bg-medisync-primary text-white hover:bg-[#0958b5]"
+                      : "text-medisync-primary hover:bg-blue-50 bg-white border border-blue-200"
                   }`}
                   style={{ cursor: "pointer" }}
                 >
@@ -241,7 +241,7 @@ export default function DashboardView({ onNavigate }) {
               console.log("Lihat semua clicked");
               onNavigate && onNavigate("pasien");
             }}
-            className="mt-4 text-sm text-blue-600 font-medium hover:underline flex items-center gap-1 cursor-pointer"
+            className="mt-4 text-sm text-medisync-primary font-medium hover:underline flex items-center gap-1 cursor-pointer"
             style={{ cursor: "pointer" }}
           >
             Lihat semua pasien menunggu
@@ -262,8 +262,8 @@ export default function DashboardView({ onNavigate }) {
         </div>
 
         {/* Resep Disahkan Terbaru */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-800 mb-1">
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#dce7ef] shadow-sm">
+          <h3 className="text-lg font-bold text-medisync-dark mb-1">
             Resep Disahkan Terbaru
           </h3>
           <p className="text-xs text-slate-500 mb-4">
@@ -291,7 +291,7 @@ export default function DashboardView({ onNavigate }) {
                 key={i}
                 className="pb-4 border-b border-slate-100 last:border-0 last:pb-0"
               >
-                <p className="text-sm font-semibold text-slate-800">{r.name}</p>
+                <p className="text-sm font-semibold text-medisync-dark">{r.name}</p>
                 <p className="text-xs text-slate-500 mt-1">
                   {r.code} • {r.time}
                 </p>
@@ -319,7 +319,7 @@ export default function DashboardView({ onNavigate }) {
               console.log("Buat Resep clicked");
               onNavigate && onNavigate("resep");
             }}
-            className="w-full mt-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition shadow-sm cursor-pointer"
+            className="w-full mt-6 py-2.5 bg-medisync-primary text-white rounded-lg text-sm font-semibold hover:bg-[#0958b5] transition shadow-sm cursor-pointer"
             style={{ cursor: "pointer" }}
           >
             Buat Resep
@@ -329,7 +329,7 @@ export default function DashboardView({ onNavigate }) {
 
       <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
         <svg
-          className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+          className="w-5 h-5 text-medisync-primary flex-shrink-0 mt-0.5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

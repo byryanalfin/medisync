@@ -1,3 +1,7 @@
+import trackingLogo from "../../assets/figma-tracking-logo.svg";
+import trackingPill from "../../assets/figma-tracking-pill.svg";
+import trackingSearch from "../../assets/figma-tracking-search.svg";
+import trackingPrivacy from "../../assets/figma-tracking-privacy.svg";
 import { useState, useEffect, Fragment } from "react";
 import api from "../../services/api";
 
@@ -10,12 +14,12 @@ const STAGES = [
 ];
 
 const stageInfo = (status) => {
-  if (status === "approved")
-    return {
-      stage: 2,
-      title: "Sedang Diracik",
-      desc: "Obat Anda sedang diproses oleh instalasi farmasi.",
-    };
+  if (status === "preparing")
+    return { stage: 2, title: "Sedang Diracik", desc: "Obat Anda sedang diproses oleh instalasi farmasi." };
+  if (status === "ready")
+    return { stage: 3, title: "Siap Diserahkan", desc: "Obat Anda siap diambil di instalasi farmasi." };
+  if (status === "picked_up")
+    return { stage: 4, title: "Diserahkan", desc: "Obat telah diserahkan oleh instalasi farmasi." };
   if (status === "on_hold")
     return {
       stage: 0,
@@ -34,16 +38,18 @@ const formatWaktu = (d) => {
     day: "numeric",
     month: "short",
     year: "numeric",
+    timeZone: "Asia/Jakarta",
   });
   const jam = d.toLocaleTimeString("id-ID", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
+    timeZone: "Asia/Jakarta",
   });
   return `${tanggal} ${jam} WIB`;
 };
 
-export default function TrackingPasienView({ onBackToLogin }) {
+export default function TrackingPasienView({ onBackToLogin, backLabel = "Kembali ke login internal" }) {
   const [code, setCode] = useState("");
   const [trackedCode, setTrackedCode] = useState("");
   const [result, setResult] = useState(null);
@@ -78,7 +84,9 @@ export default function TrackingPasienView({ onBackToLogin }) {
         const res = await api.get(`/tracking/${trackedCode}`);
         setResult(res.data.data);
         setLastUpdate(new Date());
-      } catch {}
+      } catch {
+        // Pertahankan hasil terakhir sampai polling berikutnya.
+      }
     }, 10000);
     return () => clearInterval(t);
   }, [trackedCode]);
@@ -87,72 +95,57 @@ export default function TrackingPasienView({ onBackToLogin }) {
   const stage = info?.stage ?? 0;
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans flex flex-col">
+    <div className="min-h-screen bg-medisync-light font-sans flex flex-col text-medisync-dark">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+      <header className="bg-white border-b border-[#dce7ef]">
+        <div className="mx-auto gap-3 px-4 sm:px-8 min-h-[75px] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center">
-              <svg
-                className="w-5 h-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
+            <div className="w-9 h-9 bg-medisync-primary rounded-lg flex items-center justify-center">
+              <img src={trackingLogo} alt="" />
             </div>
             <span className="text-lg font-bold text-slate-800">MediSync</span>
           </div>
-          <span className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700">
+          <span className="border-l border-[#dce7ef] pl-4 text-sm font-semibold">
             Tracking Pelayanan Obat
           </span>
         </div>
       </header>
 
-      <main className="flex-1 w-full">
-        <div className="max-w-3xl mx-auto px-6 py-10">
+      <main className="flex-1 w-full bg-[radial-gradient(ellipse_at_top,#e8f7f6_0%,transparent_60%)]">
+        <div className="max-w-[816px] mx-auto px-4 py-7 sm:px-6 sm:py-10">
           {!result ? (
             <>
-              <div className="text-center mb-8">
-                <p className="text-xs font-bold tracking-[0.15em] uppercase text-blue-600 mb-2">
-                  LAYANAN PUBLIK
-                </p>
-                <h1 className="text-3xl font-semibold text-slate-800 mb-2">
-                  Lacak Pelayanan Obat
-                </h1>
-                <p className="text-slate-500 text-sm">
-                  Masukkan kode tracking yang diberikan dokter setelah resep
-                  disahkan.
-                </p>
+              <div className="mb-6 text-center">
+                <div className="mx-auto mb-3 grid h-[60px] w-[60px] place-items-center rounded-2xl bg-[#e3f7f5]"><img src={trackingPill} alt="" /></div>
+                <p className="mb-3 text-xs font-bold text-medisync-primary">LAYANAN PASIEN TANPA LOGIN</p>
+                <h1 className="mb-2 text-3xl font-semibold tracking-tight">Tracking Pelayanan Obat</h1>
+                <p className="mb-2 text-xl font-medium">Pantau Status Pelayanan Obat Anda</p>
+                <p className="text-sm text-slate-600">Masukkan kode tracking yang diberikan oleh dokter.</p>
               </div>
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                <form onSubmit={doTrack} className="flex gap-3">
+              <div className="mx-auto max-w-[480px] rounded-2xl border border-[#dce7ef] bg-white p-6 shadow-sm">
+                <form onSubmit={doTrack} className="space-y-3">
+                  <label htmlFor="tracking-code" className="block text-sm font-semibold">Kode Tracking</label>
                   <input
+                    id="tracking-code"
                     value={code}
-                    onChange={(e) => setCode(e.target.value.toUpperCase())}
+                    onChange={(event) => setCode(event.target.value.toUpperCase())}
                     placeholder="Contoh: MS-482731"
-                    className="flex-1 px-4 py-3 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none"
+                    aria-invalid={Boolean(error)}
+                    aria-describedby={error ? "tracking-error" : "tracking-hint"}
+                    className="w-full rounded-[10px] border border-[#cfdae4] px-4 py-3 text-sm focus:outline focus:outline-2 focus:outline-medisync-primary"
                   />
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    {loading ? "Mencari..." : "Lacak"}
+                  <p id="tracking-hint" className="text-xs text-slate-600">Gunakan format MS- diikuti 6 karakter.</p>
+                  <button type="submit" disabled={loading} className="flex w-full items-center justify-center gap-2 rounded-[10px] bg-medisync-primary px-4 py-3 text-sm font-semibold text-white hover:bg-[#0958b5] disabled:opacity-50">
+                    <img src={trackingSearch} alt="" />
+                    {loading ? "Mencari..." : "Lacak Status"}
                   </button>
                 </form>
-                {error && (
-                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-                    {error}
-                  </div>
-                )}
+                <div className="mt-4 flex items-start gap-3 border-t border-[#dce7ef] pt-4 text-xs">
+                  <img src={trackingPrivacy} alt="" />
+                  <div><p className="font-semibold">Privasi Anda terlindungi</p><p className="mt-1 text-slate-600">Halaman ini hanya menampilkan status pelayanan obat, tanpa data medis pribadi.</p></div>
+                </div>
               </div>
+              {error && <p id="tracking-error" role="alert" className="mx-auto mt-5 max-w-[480px] rounded-xl border border-[#f2b8ad] bg-[#fff2f0] px-5 py-4 text-sm text-[#a12e26]">{error}</p>}
             </>
           ) : (
             <>
@@ -162,7 +155,7 @@ export default function TrackingPasienView({ onBackToLogin }) {
                   setTrackedCode("");
                   setCode("");
                 }}
-                className="flex items-center gap-1 text-sm text-blue-600 font-medium hover:underline mb-4"
+                className="flex items-center gap-1 text-sm text-medisync-primary font-medium hover:underline mb-4"
               >
                 <svg
                   className="w-4 h-4"
@@ -181,9 +174,9 @@ export default function TrackingPasienView({ onBackToLogin }) {
               </button>
 
               {/* Kartu Status Saat Ini */}
-              <div className="bg-white border-2 border-blue-600 rounded-xl p-6 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="bg-white border-2 border-medisync-primary rounded-xl p-6 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">
+                  <p className="text-xs font-bold text-medisync-primary uppercase tracking-wider mb-1">
                     Status Saat Ini
                   </p>
                   <h2 className="text-3xl font-bold text-slate-800">
@@ -202,7 +195,7 @@ export default function TrackingPasienView({ onBackToLogin }) {
               </div>
 
               {/* Kartu Progres + Stepper */}
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-6">
+              <div className="bg-white rounded-xl border border-[#dce7ef] shadow-sm p-6 mb-6">
                 <div className="flex items-start justify-between mb-6 gap-3">
                   <div>
                     <h3 className="text-base font-bold text-slate-800">
@@ -238,7 +231,7 @@ export default function TrackingPasienView({ onBackToLogin }) {
                             state === "done"
                               ? "bg-teal-500 text-white"
                               : state === "current"
-                                ? "bg-blue-600 text-white ring-4 ring-blue-100 animate-live-blue"
+                                ? "bg-medisync-primary text-white ring-4 ring-blue-100"
                                 : "bg-white border-2 border-slate-300 text-slate-400"
                           }`}
                         >
@@ -264,14 +257,14 @@ export default function TrackingPasienView({ onBackToLogin }) {
                     );
                   })}
                 </div>
-                <div className="grid grid-cols-5 mt-3 text-center">
+                <div className="grid grid-cols-5 gap-1 mt-3 text-center [overflow-wrap:anywhere]">
                   {STAGES.map((label, i) => {
                     const state =
                       i < stage ? "done" : i === stage ? "current" : "todo";
                     return (
                       <div key={label}>
                         <p
-                          className={`text-sm font-semibold ${state === "done" ? "text-teal-600" : state === "current" ? "text-blue-600" : "text-slate-400"}`}
+                          className={`text-sm font-semibold ${state === "done" ? "text-teal-600" : state === "current" ? "text-medisync-primary" : "text-slate-400"}`}
                         >
                           {label}
                         </p>
@@ -289,7 +282,7 @@ export default function TrackingPasienView({ onBackToLogin }) {
               </div>
 
               {/* Info layanan */}
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 mb-6 grid grid-cols-2 gap-4">
+              <div className="bg-white rounded-xl border border-[#dce7ef] shadow-sm p-4 sm:p-5 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-slate-400 mb-1">Layanan</p>
                   <p className="text-sm font-bold text-slate-800">
@@ -349,7 +342,7 @@ export default function TrackingPasienView({ onBackToLogin }) {
                   </p>
                 </div>
               )}
-              {stage >= 3 && (
+              {stage === 3 && (
                 <div className="mb-6 p-4 bg-teal-50 border border-teal-200 rounded-lg flex items-start gap-3">
                   <svg
                     className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5"
@@ -382,7 +375,7 @@ export default function TrackingPasienView({ onBackToLogin }) {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200">
+      <footer className="bg-white border-t border-[#dce7ef]">
         <div className="max-w-5xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-slate-400">
             © 2025 RS Medika Utama · MediSync · Informasi status pelayanan obat
@@ -390,9 +383,9 @@ export default function TrackingPasienView({ onBackToLogin }) {
           {onBackToLogin && (
             <button
               onClick={onBackToLogin}
-              className="text-xs text-slate-500 hover:text-blue-600 underline"
+              className="text-xs text-slate-500 hover:text-medisync-primary underline"
             >
-              Kembali ke login internal
+              {backLabel}
             </button>
           )}
         </div>

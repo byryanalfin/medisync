@@ -1,15 +1,26 @@
-import { useState, useEffect } from "react";
+import { useFeedback } from "./feedbackContext";
+import { useState } from "react";
 import api from "./services/api";
 import DashboardView from "./components/doctor/DashboardView";
 import DaftarPasienView from "./components/doctor/DaftarPasienView";
 import DetailPasienView from "./components/doctor/DetailPasienView";
 import PemeriksaanView from "./components/doctor/PemeriksaanView";
+import PharmacyQueueView from "./components/pharmacy/PharmacyQueueView";
 import ResepElektronikView from "./components/doctor/ResepElektronikView";
 import TrackingPasienView from "./components/public/TrackingPasienView";
 import ResepDisahkanView from "./components/doctor/ResepDisahkanView";
-import AdminDashboardView from "./components/admin/AdminDashboardView";
+
+const pharmacyTabs = [
+  ["dashboard", "Dashboard", "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"],
+  ["queue", "Antrean Resep", "M8 5H5v16h14V5h-3M8 3h8v4H8zM8 11h8M8 15h8"],
+  ["patients", "Data Pasien", "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-4"],
+  ["bpjs", "Verifikasi BPJS", "M12 22s7-3 7-9V5l-7-3-7 3v8c0 6 7 9 7 9zM9 12l2 2 4-4"],
+  ["status", "Status Pelayanan", "M2 12h5l3-8 4 16 3-8h5"],
+  ["history", "Riwayat", "M3 12a9 9 0 1 1 3 7M3 5v7h7M12 7v5l4 2"],
+];
 
 function App() {
+  const showFeedback = useFeedback();
   const [currentPage, setCurrentPage] = useState("login");
   const [currentView, setCurrentView] = useState("dashboard");
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -31,12 +42,13 @@ function App() {
       setUser(response.data.user);
 
       if (response.data.user.role === "admin_apoteker") {
+        setCurrentView("dashboard");
         setCurrentPage("admin-portal");
       } else {
         setCurrentPage("dashboard");
       }
     } catch (error) {
-      alert(
+      showFeedback(
         "Login gagal: " +
           (error.response?.data?.message || "Email/password salah"),
       );
@@ -55,7 +67,7 @@ function App() {
   const handleLogout = async () => {
     try {
       await api.post("/logout");
-    } catch (error) {
+    } catch {
       // Ignore error
     }
     localStorage.removeItem("token");
@@ -69,9 +81,9 @@ function App() {
   // === LOGIN PAGE ===
   if (currentPage === "login") {
     return (
-      <div className="flex min-h-screen font-sans">
+      <div className="flex min-h-[100dvh] flex-col lg:flex-row font-sans">
         {/* Left Side - Branding */}
-        <div className="w-1/2 bg-gradient-to-br from-[#0a4a6e] to-[#0d6e8e] text-white p-12 flex flex-col justify-between relative overflow-hidden">
+        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0a4a6e] to-[#0d6e8e] text-white p-12 flex-col justify-between relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
 
@@ -148,7 +160,7 @@ function App() {
         </div>
 
         {/* Right Side - Login Form */}
-        <div className="w-1/2 bg-white flex flex-col justify-center px-20">
+        <div className="flex flex-1 flex-col justify-center bg-white px-5 py-8 sm:px-10 lg:w-1/2 lg:px-12 xl:px-20">
           <div className="max-w-md w-full mx-auto">
             <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-blue-600 mb-3">
               AKSES INTERNAL RUMAH SAKIT
@@ -288,14 +300,14 @@ function App() {
   }
 
   if (currentPage === "tracking") {
-    return <TrackingPasienView onBackToLogin={() => setCurrentPage("login")} />;
+    return <TrackingPasienView onBackToLogin={() => setCurrentPage(user?.role === "admin_apoteker" ? "admin-portal" : user ? "dashboard" : "login")} backLabel={user?.role === "admin_apoteker" ? "Kembali ke Instalasi Farmasi" : user ? "Kembali ke Portal Dokter" : undefined} />;
   }
 
   // === ADMIN PORTAL ===
   if (currentPage === "admin-portal") {
     return (
-      <div className="flex min-h-screen bg-slate-50 font-sans">
-        <aside className="w-64 bg-[#0f3d5c] text-white flex flex-col fixed h-full z-20">
+      <div className="flex min-h-screen flex-col lg:flex-row bg-medisync-light font-sans">
+        <aside className="w-full lg:w-[248px] bg-gradient-to-b from-[#103a5e] to-[#0a2945] text-white flex flex-col lg:fixed lg:h-full z-20">
           <div className="p-6 flex items-center gap-3 border-b border-white/10">
             <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
               <svg
@@ -313,13 +325,13 @@ function App() {
               </svg>
             </div>
             <span className="text-lg font-semibold tracking-wide">
-              MediSync Farmasi
+              MediSync
             </span>
           </div>
 
-          <div className="px-4 py-6">
+          <div className="px-4 py-3 lg:py-6">
             <div className="bg-white/10 rounded-xl p-3 flex items-center gap-3">
-              <div className="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+              <div className="w-10 h-10 bg-[#205578] rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
                 AP
               </div>
               <div className="overflow-hidden">
@@ -327,36 +339,19 @@ function App() {
                   {user?.name || "Nur Aisyah, S.Farm"}
                 </p>
                 <p className="text-[10px] text-white/60 truncate">
-                  Apoteker Jaga
+                  Admin Apoteker
                 </p>
               </div>
             </div>
           </div>
 
-          <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-            <button
-              onClick={() => setCurrentView("dashboard")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition ${
-                currentView === "dashboard"
-                  ? "bg-teal-600 text-white"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-                />
-              </svg>
-              Dashboard Resep
-            </button>
+          <nav aria-label="Instalasi Farmasi" className="flex flex-1 flex-wrap gap-1 px-4 pb-4 lg:block lg:space-y-1">
+            {pharmacyTabs.map(([id, label, path]) => (
+              <button key={id} type="button" aria-current={currentView === id ? "page" : undefined} onClick={() => setCurrentView(id)} className={`flex items-center gap-3 rounded-md border-l-2 px-3 py-2.5 text-left text-sm lg:w-full ${currentView === id ? "border-teal-300 bg-[#174968] text-white" : "border-transparent text-slate-200 hover:bg-white/10"}`}>
+                <svg aria-hidden="true" className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={path} /></svg>
+                {label}
+              </button>
+            ))}
           </nav>
 
           <div className="p-4 border-t border-white/10">
@@ -377,103 +372,31 @@ function App() {
                   d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                 />
               </svg>
-              Logout
+              Keluar
             </button>
           </div>
         </aside>
 
-        <div className="flex-1 ml-64 flex flex-col min-h-screen">
-          <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
+        <div className="flex-1 min-w-0 lg:ml-[248px] flex flex-col min-h-screen">
+          <header className="min-h-16 gap-2 py-2 bg-white border-b border-[#dce7ef] flex items-center justify-between px-4 sm:px-8 sticky top-0 z-10">
             <div>
               <p className="text-[10px] font-bold tracking-[0.15em] text-slate-400 uppercase">
                 Rumah Sakit Medika Utama
               </p>
               <h1 className="text-lg font-semibold text-slate-800 -mt-0.5">
-                Portal Apoteker
+                Instalasi Farmasi
               </h1>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="w-9 h-9 bg-teal-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <button type="button" onClick={() => setCurrentPage("tracking")} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-[#14314b] hover:bg-slate-50">Tracking Publik</button>
+              <div className="w-9 h-9 bg-[#205578] rounded-full flex items-center justify-center text-white text-xs font-bold">
                 AP
               </div>
             </div>
           </header>
 
-          <main className="p-8 flex-1 overflow-y-auto">
-            {currentView === "dashboard" && (
-              <DashboardView
-                onNavigate={(view, patient) => {
-                  console.log("Dashboard navigate:", view, patient);
-                  if (patient) setSelectedPatient(patient);
-                  setCurrentView(view);
-                }}
-              />
-            )}
-
-            {currentView === "pasien" && (
-              <DaftarPasienView
-                onDetail={(patient) => {
-                  setSelectedPatient(patient);
-                  setCurrentView("detail-pasien");
-                }}
-                onPeriksa={(patient) => {
-                  setSelectedPatient(patient);
-                  setCurrentView("pemeriksaan");
-                }}
-              />
-            )}
-
-            {currentView === "detail-pasien" && (
-              <DetailPasienView
-                patient={selectedPatient}
-                onStartExam={() => {
-                  console.log("Start Exam clicked");
-                  setCurrentView("pemeriksaan");
-                }}
-              />
-            )}
-
-            {currentView === "pemeriksaan" && (
-              <PemeriksaanView
-                patient={selectedPatient}
-                onNext={() => setCurrentView("resep")}
-                onBackToDashboard={() => {
-                  setSelectedPatient(null);
-                  setCurrentView("dashboard");
-                }}
-              />
-            )}
-
-            {currentView === "resep" && (
-              <ResepElektronikView
-                patient={selectedPatient}
-                onSahkan={() => {
-                  console.log("Sahkan clicked");
-                  setCurrentView("resep-disahkan");
-                }}
-              />
-            )}
-
-            {currentView === "resep-disahkan" && (
-              <ResepDisahkanView
-                onBackToDashboard={() => {
-                  console.log("Back to Dashboard clicked");
-                  setSelectedPatient(null);
-                  setCurrentView("dashboard");
-                }}
-              />
-            )}
-
-            {currentView === "riwayat" && (
-              <div className="bg-white p-12 rounded-xl border border-slate-200 shadow-sm text-center">
-                <h2 className="text-2xl font-bold text-slate-800 mb-2">
-                  Riwayat Pemeriksaan
-                </h2>
-                <p className="text-slate-500">
-                  Fitur ini akan tersedia di Sprint 2.
-                </p>
-              </div>
-            )}
+          <main className="flex-1 p-4 sm:p-7">
+            <PharmacyQueueView tab={currentView} onTabChange={setCurrentView} userName={user?.name} />
           </main>
         </div>
       </div>
@@ -482,9 +405,9 @@ function App() {
 
   // === DOKTOR PORTAL ===
   return (
-    <div className="flex min-h-screen bg-slate-50 font-sans">
+    <div className="flex min-h-screen flex-col lg:flex-row bg-medisync-light font-sans">
       {/* Sidebar */}
-      <aside className="w-64 bg-[#0f3d5c] text-white flex flex-col fixed h-full z-20">
+      <aside className="w-full lg:w-[248px] bg-gradient-to-b from-[#103a5e] to-[#0a2945] text-white flex flex-col lg:fixed lg:h-full z-20">
         <div className="p-6 flex items-center gap-3 border-b border-white/10">
           <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
             <svg
@@ -504,7 +427,7 @@ function App() {
           <span className="text-lg font-semibold tracking-wide">MediSync</span>
         </div>
 
-        <div className="px-4 py-6">
+        <div className="px-4 py-3 lg:py-6">
           <div className="bg-white/10 rounded-xl p-3 flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
               AS
@@ -518,7 +441,7 @@ function App() {
           </div>
         </div>
 
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+        <nav className="flex flex-1 flex-wrap gap-1 px-4 pb-4 lg:block lg:space-y-1 lg:overflow-y-auto">
           {[
             {
               id: "dashboard",
@@ -549,7 +472,7 @@ function App() {
             <button
               key={item.id}
               onClick={() => setCurrentView(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition ${
+              className={`flex min-h-11 items-center gap-2 px-3 py-2 lg:w-full rounded-lg text-sm font-medium transition ${
                 currentView === item.id ||
                 (item.id === "pasien" &&
                   [
@@ -604,9 +527,9 @@ function App() {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 ml-64 flex flex-col min-h-screen">
+      <div className="min-w-0 flex-1 lg:ml-[248px] flex flex-col min-h-screen">
         {/* Topbar */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
+        <header className="min-h-16 gap-2 py-2 bg-white border-b border-[#dce7ef] flex items-center justify-between px-4 sm:px-8 sticky top-0 z-10">
           <div>
             <p className="text-[10px] font-bold tracking-[0.15em] text-slate-400 uppercase">
               Rumah Sakit Medika Utama
@@ -615,8 +538,8 @@ function App() {
               Portal Dokter
             </h1>
           </div>
-          <div className="flex items-center gap-4">
-            <button className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button type="button" onClick={() => setCurrentPage("tracking")} className="min-h-11 px-3 border border-slate-300 rounded-lg text-xs sm:text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition">
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -638,7 +561,7 @@ function App() {
               </svg>
               Tracking Publik
             </button>
-            <button className="w-9 h-9 border border-slate-300 rounded-lg flex items-center justify-center hover:bg-slate-50 transition">
+            <button type="button" aria-label="Notifikasi" disabled className="hidden sm:flex w-9 h-9 border border-slate-300 rounded-lg items-center justify-center opacity-60">
               <svg
                 className="w-5 h-5 text-slate-600"
                 fill="none"
@@ -659,9 +582,9 @@ function App() {
           </div>
         </header>
 
-        <main className="p-8 flex-1 overflow-y-auto">
+        <main className="min-w-0 flex-1 p-4 sm:p-7">
           {currentView === "dashboard" && (
-            <DashboardView
+            <DashboardView userName={user?.name}
               onNavigate={(view, patient) => {
                 if (patient) setSelectedPatient(patient);
                 setCurrentView(view);
@@ -712,16 +635,7 @@ function App() {
             />
           )}
 
-          {currentView === "riwayat" && (
-            <div className="bg-white p-12 rounded-xl border border-slate-200 shadow-sm text-center">
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">
-                Riwayat Pemeriksaan
-              </h2>
-              <p className="text-slate-500">
-                Fitur ini akan tersedia di Sprint 2.
-              </p>
-            </div>
-          )}
+          {currentView === "riwayat" && <PharmacyQueueView tab="history" doctorHistory />}
 
           {/* JARING PENGAMAN: kalau currentView aneh, tampilkan instead of blank */}
           {![

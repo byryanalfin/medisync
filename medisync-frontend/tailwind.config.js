@@ -7,14 +7,14 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Manrope', 'sans-serif'], // <-- TAMBAHKAN INI
+        sans: ['DM Sans', 'sans-serif'], // <-- TAMBAHKAN INI
       },
       colors: {
         medisync: {
-          dark: '#0f172a',
-          primary: '#0ea5e9',
-          teal: '#14b8a6',
-          light: '#f8fafc',
+          dark: '#17324d',
+          primary: '#1269d3',
+          teal: '#0d9d92',
+          light: '#f4f8fb',
         }
       }
     },

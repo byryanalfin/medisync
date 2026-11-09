@@ -3,7 +3,9 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PatientController;
 use App\Http\Controllers\Api\ExaminationController;
+use App\Http\Controllers\Api\DrugController;
 use App\Http\Controllers\Api\PrescriptionController;
+use App\Http\Controllers\Api\PharmacyController;
 use Illuminate\Support\Facades\Route;
 
 // Public: Login
@@ -33,4 +35,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/prescriptions/{id}', [PrescriptionController::class, 'show']);
     Route::post('/prescriptions', [PrescriptionController::class, 'store']);
     Route::put('/prescriptions/{id}', [PrescriptionController::class, 'update']);
+
+    // Obat - untuk autocomplete di resep
+    Route::get('/drugs', [DrugController::class, 'index']);
+    Route::get('/drugs/categories', [DrugController::class, 'categories']);
+
+    // Apoteker
+    Route::get('/pharmacy/queue', [PharmacyController::class, 'queue']);
+    Route::get('/prescriptions/{id}/detail', [PharmacyController::class, 'prescriptionDetail']);
+    Route::put('/prescriptions/{id}/status', [PharmacyController::class, 'updateStatus']);
 });
